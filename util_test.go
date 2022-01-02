@@ -1,6 +1,13 @@
 package main
 
-import "testing"
+import (
+	"context"
+	"fmt"
+	"testing"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
+)
 
 func Test_deployNewContainer(t *testing.T) {
 	type args struct {
@@ -30,5 +37,22 @@ func Test_deployNewContainer(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			deployNewContainer(tt.args.containerName, tt.args.imageName)
 		})
+	}
+}
+
+func Test_test(t *testing.T) {
+
+	cli, err := client.NewEnvClient()
+	defer cli.Close()
+	if err != nil {
+		return
+	}
+	closer, err := cli.ImagePull(context.Background(), "kevinmatt/betago:latest", types.ImagePullOptions{})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	err = closer.Close()
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 }
