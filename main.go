@@ -20,7 +20,7 @@ func main() {
 		payload, err := hook.Parse(r, github.ReleaseEvent, github.PushEvent, github.WorkflowRunEvent)
 		if err != nil {
 			if err == github.ErrEventNotFound {
-				fmt.Println("TEST")
+				fmt.Println("Invalid EventType")
 				// ok event wasn;t one of the ones asked to be parsed
 			}
 		}
@@ -35,9 +35,11 @@ func main() {
 		case github.WorkflowRunPayload:
 			workflow := payload.(github.WorkflowRunPayload)
 			if workflow.Action == "completed" && workflow.WorkflowRun.Name == "Docker" {
-				//TODO 触发重新部署机制
 				log.Println("Receive Docker workflow finished.")
-				go deployNewContainer()
+				go deployNewContainer(stableContainerName, stableImageName)
+			} else if workflow.Action == "completed" && workflow.WorkflowRun.Name == "Docker-nightly" {
+				log.Println("Receive Docker workflow finished.")
+				go deployNewContainer(nightlyContainerName, nightlyImageName)
 			}
 		}
 	})
