@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -15,78 +13,97 @@ import (
 )
 
 func deployNewContainer(containerName, imageName string) {
-	ctx := context.Background()
-	var timeout time.Duration = 10 * time.Second
 	cli, err := client.NewEnvClient()
 	defer cli.Close()
 	if err != nil {
-		fmt.Println("Make Docker Client Fails", err.Error())
+		fmt.Println(err.Error())
 	}
 
-	fmt.Println("Stopping Container...")
-	err = cli.ContainerStop(ctx, containerName, &timeout)
+	err = stopContainer(cli, containerName, -1)
 	if err != nil {
-		fmt.Println("Stop Container Fails：", err.Error())
+		fmt.Println(err.Error())
 	}
 
-	fmt.Println("Removing Container...")
-	err = cli.ContainerRemove(ctx, containerName, types.ContainerRemoveOptions{Force: true})
+	err = removeContainer(cli, containerName)
 	if err != nil {
-		fmt.Println("Remove Container Fails：", err.Error())
+		fmt.Println(err.Error())
 	}
 
-	fmt.Println("Removing Previous Image...")
-	_, err = cli.ImageRemove(ctx, imageName, types.ImageRemoveOptions{Force: true})
+	err = removeImage(cli, imageName)
 	if err != nil {
-		fmt.Println("Removing Image Fails：", err.Error())
+		fmt.Println(err.Error())
 	}
 
+	err = PullImg(cli, imageName)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	err = createContainer(cli, containerName, imageName)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	err = startContainer(cli, containerName)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("Finished")
+	return
+}
+
+func PullImg(cli *client.Client, imageName string) (err error) {
 	fmt.Println("Pulling Image...")
-	reader, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(context.Background(), imageName, types.ImagePullOptions{})
 	if err != nil {
-		fmt.Println("Pull Image Fails：", err.Error())
+		return
 	}
 	io.Copy(os.Stdout, reader)
-	reader.Close()
+	defer reader.Close()
+	return
+}
 
-	fmt.Println("Creating Container...")
-	_, err = cli.ContainerCreate(ctx, &container.Config{Image: imageName}, nil, nil, nil, containerName)
+func stopContainer(cli *client.Client, containerName string, timeout int) (err error) {
+	var expired time.Duration = time.Duration(timeout)
+	fmt.Println("Stopping Container...")
+	err = cli.ContainerStop(context.Background(), containerName, &expired)
 	if err != nil {
-		fmt.Println("Create Container Fails：", err.Error())
-	}
-
-	fmt.Println("Starting Container...")
-	if err = cli.ContainerStart(ctx, containerName, types.ContainerStartOptions{}); err != nil {
-		fmt.Println("Start Container Fails：", err.Error())
+		return
 	}
 	return
 }
 
-func PullImg(username, password, imgurl string) error {
-
-	authConfig := types.AuthConfig{
-		Username: username, Password: password}
-	encodedJSON, err := json.Marshal(authConfig)
+func removeContainer(cli *client.Client, containerName string) (err error) {
+	fmt.Println("Removing Container...")
+	err = cli.ContainerRemove(context.Background(), containerName, types.ContainerRemoveOptions{})
 	if err != nil {
-		return err
+		return
 	}
-	authStr := base64.URLEncoding.EncodeToString(encodedJSON)
+	return
+}
 
-	ctx := context.Background()
-	cli, err := client.NewEnvClient()
+func removeImage(cli *client.Client, imageName string) (err error) {
+	fmt.Println("Removing Previous Image...")
+	_, err = cli.ImageRemove(context.Background(), imageName, types.ImageRemoveOptions{Force: true})
 	if err != nil {
-		return err
+		return
 	}
+	return
+}
 
-	reader, err := cli.ImagePull(ctx, imgurl, types.ImagePullOptions{RegistryAuth: authStr})
+func createContainer(cli *client.Client, containerName, imageName string) (err error) {
+	fmt.Println("Creating Container...")
+	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName}, nil, nil, nil, containerName)
 	if err != nil {
-		return err
+		return
 	}
-	wr, err := io.Copy(os.Stdout, reader)
-	fmt.Println(wr)
-	if err != nil {
-		return err
-	}
+	return
+}
 
-	return nil
+func startContainer(cli *client.Client, containerName string) (err error) {
+	fmt.Println("Starting Container...")
+	if err = cli.ContainerStart(context.Background(), containerName, types.ContainerStartOptions{}); err != nil {
+		return
+	}
+	return
 }

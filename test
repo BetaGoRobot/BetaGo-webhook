@@ -1,0 +1,11 @@
+[Unit]
+Description=go-webhook
+
+[Service]
+Type=simple
+ExecStart=/root/webhook/webhook
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
