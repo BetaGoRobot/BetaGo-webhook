@@ -7,35 +7,46 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 func deployNewContainer(containerName, imageName string) {
-	var timeout time.Duration = 5 * time.Second
-	cli, err := client.NewEnvClient()
+	ctx := context.Background()
+	var timeout time.Duration = 10 * time.Second
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	defer cli.Close()
 	if err != nil {
 		fmt.Println("Make Docker Client Fails", err.Error())
 	}
-	err = cli.ContainerStop(context.Background(), containerName, &timeout)
+
+	fmt.Println("Stopping Container...")
+	err = cli.ContainerStop(ctx, containerName, &timeout)
 	if err != nil {
 		fmt.Println("Stop Container Fails：", err.Error())
 	}
-	err = cli.ContainerRemove(context.Background(), containerName, types.ContainerRemoveOptions{RemoveVolumes: true})
+
+	fmt.Println("Removing Container...")
+	err = cli.ContainerRemove(ctx, containerName, types.ContainerRemoveOptions{RemoveVolumes: true, RemoveLinks: true, Force: true})
 	if err != nil {
 		fmt.Println("Remove Container Fails：", err.Error())
 	}
-	_, err = cli.ImagePull(context.Background(), imageName, types.ImagePullOptions{})
+
+	fmt.Println("Pulling Image...")
+	reader, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{All: true})
 	if err != nil {
 		fmt.Println("Pull Container Fails：", err.Error())
 	}
-	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName}, &container.HostConfig{}, &network.NetworkingConfig{}, &v1.Platform{OS: "amd64"}, containerName)
+	defer reader.Close()
+
+	fmt.Println("Creating Container...")
+	_, err = cli.ContainerCreate(ctx, &container.Config{Image: imageName}, nil, nil, nil, containerName)
 	if err != nil {
 		fmt.Println("Create Container Fails：", err.Error())
 	}
-	err = cli.ContainerStart(context.Background(), containerName, types.ContainerStartOptions{})
-	if err != nil {
+
+	fmt.Println("Starting Container...")
+	if err = cli.ContainerStart(ctx, containerName, types.ContainerStartOptions{}); err != nil {
 		fmt.Println("Start Container Fails：", err.Error())
 	}
+	return
 }

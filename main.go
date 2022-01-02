@@ -30,16 +30,19 @@ func main() {
 			// Do whatever you want from here...
 			fmt.Printf("%+v", release)
 		case github.PushPayload:
-			push := payload.(github.PushPayload)
-			fmt.Printf("%+v", push)
+			// push := payload.(github.PushPayload)
+			// fmt.Printf("%+v", push)
 		case github.WorkflowRunPayload:
 			workflow := payload.(github.WorkflowRunPayload)
-			if workflow.Action == "completed" && workflow.WorkflowRun.Name == "Docker" {
-				log.Println("Receive Docker workflow finished.")
-				go deployNewContainer(stableContainerName, stableImageName)
-			} else if workflow.Action == "completed" && workflow.WorkflowRun.Name == "Docker-nightly" {
-				log.Println("Receive Docker workflow finished.")
-				go deployNewContainer(nightlyContainerName, nightlyImageName)
+			if workflow.Action == "completed" && workflow.WorkflowRun.Conclusion == "success" {
+				switch workflow.WorkflowRun.Name {
+				case "Docker":
+					log.Println("Receive Docker workflow finished.")
+					go deployNewContainer(stableContainerName, stableImageName)
+				case "Docker-nightly":
+					log.Println("Receive Docker workflow finished.")
+					go deployNewContainer(nightlyContainerName, nightlyImageName)
+				}
 			}
 		}
 	})
