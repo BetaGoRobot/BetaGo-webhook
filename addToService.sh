@@ -1,6 +1,8 @@
 set -e
 pwd=`pwd`
 
+go build -o webhook *.go
+
 cat > /lib/systemd/system/webhook.service << EOF
 [Unit]
 Description=go-webhook
