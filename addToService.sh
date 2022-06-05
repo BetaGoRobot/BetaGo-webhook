@@ -18,5 +18,5 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl start webhook
+systemctl restart webhook
 systemctl enable webhook
