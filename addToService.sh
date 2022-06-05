@@ -14,6 +14,7 @@ if [ -f "$binPath" ]; then
 fi
 
 go build -o webhook *.go
+cp webhook /betago-webhook/webhook
 
 cat > /lib/systemd/system/betago-webhook.service << EOF
 [Unit]
