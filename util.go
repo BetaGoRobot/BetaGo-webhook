@@ -93,7 +93,7 @@ func removeImage(cli *client.Client, imageName string) (err error) {
 
 func createContainer(cli *client.Client, containerName, imageName string) (err error) {
 	fmt.Println("Creating Container...")
-	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName}, nil, nil, nil, containerName)
+	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName}, &container.HostConfig{AutoRemove: true, NetworkMode: "betago"}, nil, nil, containerName)
 	if err != nil {
 		return
 	}
