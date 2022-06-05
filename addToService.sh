@@ -3,13 +3,25 @@ pwd=`pwd`
 
 go build -o webhook *.go
 
-cat > /lib/systemd/system/webhook.service << EOF
+# 检查目录是否存在
+binDirPath="/betago-webhook"
+if [ ! -d "$binDirPath" ]; then
+    mkdir $binDirPath
+fi
+
+# 如果文件存在，则删除目标文件
+binPath="/betago-webhook/webhook"
+if [ -f "$binPath" ]; then
+    rm $binPath
+fi
+
+cat > /lib/systemd/system/betago-webhook.service << EOF
 [Unit]
-Description=go-webhook
+Description=betago-webhook
 
 [Service]
 Type=simple
-ExecStart=$pwd/webhook
+ExecStart=$binPath
 Restart=on-failure
 RestartSec=10s
 
@@ -18,5 +30,5 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl restart webhook
-systemctl enable webhook
+systemctl restart betago-webhook
+systemctl enable betago-webhook
