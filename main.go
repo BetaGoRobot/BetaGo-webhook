@@ -6,10 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
-	"time"
 
 	"net/http"
-	"net/url"
 
 	"github.com/go-playground/webhooks/v6/github"
 )
@@ -19,7 +17,7 @@ const (
 )
 
 var (
-	message, htmlURL string
+	GitRes apiRes
 )
 
 // RequestInfo 请求字段的结构体
@@ -27,6 +25,13 @@ type RequestInfo struct {
 	URL     string
 	Cookies []*http.Cookie
 	Params  map[string][]string
+}
+type apiRes struct {
+	Commit struct {
+		Message string `json:"message"`
+	}
+	HTMLURL     string `json:"html_url"`
+	CommentsURL string `json:"comments_url"`
 }
 
 func main() {
@@ -50,12 +55,7 @@ func main() {
 			// fmt.Printf("%+v", push)
 		case github.WorkflowRunPayload:
 			workflow := payload.(github.WorkflowRunPayload)
-
-			resp, err := PostWithParams(
-				RequestInfo{
-					URL: strings.Replace(workflow.WorkflowRun.Repository.CommitsURL, "{/sha}", workflow.WorkflowRun.HeadSha, -1),
-				},
-			)
+			resp, err := GetReq(strings.Replace(workflow.WorkflowRun.Repository.CommitsURL, "{/sha}", "/"+workflow.WorkflowRun.HeadSha, -1))
 			if err != nil {
 				log.Println(err.Error())
 				return
@@ -66,13 +66,11 @@ func main() {
 				return
 			}
 			defer resp.Body.Close()
-			resMap := make(map[string]interface{})
-			if err := json.Unmarshal(body, &resMap); err != nil {
+			if err := json.Unmarshal(body, &GitRes); err != nil {
 				log.Println(err.Error())
 				return
 			}
-			message = resMap["message"].(string)
-			htmlURL = resMap["html_url"].(string)
+
 			if workflow.Action == "completed" && workflow.WorkflowRun.Conclusion == "success" {
 				switch workflow.WorkflowRun.Name {
 				case "Docker":
@@ -88,22 +86,15 @@ func main() {
 	http.ListenAndServe(":3000", nil)
 }
 
-// PostWithParams 发送带Cookie Params的POST请求
-func PostWithParams(info RequestInfo) (resp *http.Response, err error) {
-	params := url.Values{}
-	for key, values := range info.Params {
-		for index := range values {
-			params.Add(key, values[index])
-		}
-	}
-	params.Set("timestamp", fmt.Sprintf("%d", time.Now().UnixNano()))
-
-	// body := ioutil.NopCloser(strings.NewReader(params.Encode()))
-	resp, err = http.PostForm(info.URL+"?timestamp="+fmt.Sprint(time.Now().UnixNano()), params)
+// GetReq 获取请求
+//  @param info 传入的参数、url、cookie信息
+//  @return resp
+//  @return err
+func GetReq(URL string) (resp *http.Response, err error) {
+	//创建client
+	resp, err = http.Get(URL)
 	if err != nil {
-		log.Println(err.Error())
 		return
 	}
-
 	return
 }
