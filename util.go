@@ -52,6 +52,10 @@ func deployNewContainer(containerName, imageName string) {
 	return
 }
 
+// PullImg  pulls an image from the docker registry
+//  @param cli
+//  @param imageName
+//  @return err
 func PullImg(cli *client.Client, imageName string) (err error) {
 	fmt.Println("Pulling Image...")
 	reader, err := cli.ImagePull(context.Background(), imageName, types.ImagePullOptions{})
@@ -93,7 +97,7 @@ func removeImage(cli *client.Client, imageName string) (err error) {
 
 func createContainer(cli *client.Client, containerName, imageName string) (err error) {
 	fmt.Println("Creating Container...")
-	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName}, &container.HostConfig{AutoRemove: false, NetworkMode: "betago"}, nil, nil, containerName)
+	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName, Env: []string{"COM_MES=" + message, "HTML_URL=" + htmlURL}}, &container.HostConfig{AutoRemove: false, NetworkMode: "betago"}, nil, nil, containerName)
 	if err != nil {
 		return
 	}
