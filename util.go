@@ -63,7 +63,7 @@ func PullImg(cli *client.Client, imageName string) (err error) {
 	return
 }
 
-func stopContainer(cli *client.Client, containerName string, timeout int) (err error) {
+func stopContainer(cli *client.Client, containerName string, timeout int64) (err error) {
 	var expired = time.Duration(timeout)
 	fmt.Println("Stopping Container...")
 	err = cli.ContainerStop(context.Background(), containerName, &expired)
@@ -93,7 +93,7 @@ func removeImage(cli *client.Client, imageName string) (err error) {
 
 func createContainer(cli *client.Client, containerName, imageName string) (err error) {
 	fmt.Println("Creating Container...")
-	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName}, &container.HostConfig{AutoRemove: true, NetworkMode: "betago"}, nil, nil, containerName)
+	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName}, &container.HostConfig{AutoRemove: false, NetworkMode: "betago"}, nil, nil, containerName)
 	if err != nil {
 		return
 	}
