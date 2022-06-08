@@ -64,7 +64,7 @@ func PullImg(cli *client.Client, imageName string) (err error) {
 }
 
 func stopContainer(cli *client.Client, containerName string, timeout int) (err error) {
-	var expired time.Duration = time.Duration(timeout)
+	var expired = time.Duration(timeout)
 	fmt.Println("Stopping Container...")
 	err = cli.ContainerStop(context.Background(), containerName, &expired)
 	if err != nil {
