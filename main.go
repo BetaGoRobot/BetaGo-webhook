@@ -17,6 +17,8 @@ const (
 )
 
 var (
+
+	// GitRes  git请求返回的结果
 	GitRes apiRes
 )
 
@@ -32,6 +34,12 @@ type apiRes struct {
 	}
 	HTMLURL     string `json:"html_url"`
 	CommentsURL string `json:"comments_url"`
+	WorkFlowRun struct {
+		HTMLURL string `json:"html_url"`
+		Actor   struct {
+			Login string `json:"login"`
+		} `json:"actor"`
+	} `json:"workflow_run"`
 }
 
 func main() {

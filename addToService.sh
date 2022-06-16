@@ -1,5 +1,5 @@
+#!/bin/sh
 set -e
-pwd=`pwd`
 
 # 检查目录是否存在
 binDirPath="/betago-webhook"
@@ -13,7 +13,7 @@ if [ -f "$binPath" ]; then
     rm $binPath
 fi
 
-go build -o webhook *.go
+go build -o webhook ./*.go
 cp webhook /betago-webhook/webhook
 
 cat > /lib/systemd/system/betago-webhook.service << EOF
