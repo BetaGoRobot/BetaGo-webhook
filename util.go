@@ -19,6 +19,11 @@ func deployNewContainer(containerName, imageName string) {
 		fmt.Println(err.Error())
 	}
 
+	err = PullImg(cli, imageName)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	err = stopContainer(cli, containerName, -1)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -30,11 +35,6 @@ func deployNewContainer(containerName, imageName string) {
 	}
 
 	err = removeImage(cli, imageName)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	err = PullImg(cli, imageName)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
