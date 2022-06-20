@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os/exec"
 	"strings"
 
 	"net/http"
@@ -83,7 +84,7 @@ func main() {
 				switch workflow.WorkflowRun.Name {
 				case "Docker":
 					log.Println("Receive Docker workflow finished.")
-					go deployNewContainer(stableContainerName, stableImageName)
+					command := exec.Command("sh", "./betago-hook.sh", GitRes.HTMLURL, GitRes.CommentsURL, GitRes.WorkFlowRun.Actor.Login)
 				case "Docker-nightly":
 					log.Println("Receive Docker workflow finished.")
 					go deployNewContainer(nightlyContainerName, nightlyImageName)
