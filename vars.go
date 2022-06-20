@@ -1,8 +1,8 @@
 package main
 
 const (
-	stableImageName      = "kevinmatt/betago:latest"
+	stableImageName      = "ccr.ccs.tencentyun.com/kevinmatt/betago:latest"
 	stableContainerName  = "betago"
-	nightlyImageName     = "kevinmatt/betago:nightly"
+	nightlyImageName     = "ccr.ccs.tencentyun.com/kevinmatt/betago:nightly"
 	nightlyContainerName = "betago-nightly"
 )
