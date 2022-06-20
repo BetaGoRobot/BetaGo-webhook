@@ -1,14 +1,17 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 
 	"net/http"
 
+	"github.com/docker/docker/api/types"
 	"github.com/go-playground/webhooks/v6/github"
 )
 
@@ -20,6 +23,8 @@ var (
 
 	// GitRes  git请求返回的结果
 	GitRes apiRes
+
+	AuthStr string
 )
 
 // RequestInfo 请求字段的结构体
@@ -108,4 +113,22 @@ func GetReq(URL string) (resp *http.Response, err error) {
 		return
 	}
 	return
+}
+
+func init() {
+	// 获取镜像Token
+	username := os.Getenv("DOCKER_USERNAME_TENCENT")
+	password := os.Getenv("DOCKER_PASSWORD_TENCENT")
+	if username == "" || password == "" {
+		log.Fatal("DOCKER_USERNAME_TENCENT or DOCKER_PASSWORD_TENCENT is empty")
+	}
+	a := types.AuthConfig{
+		Username: username,
+		Password: password,
+	}
+	encodeJSON, err := json.Marshal(&a)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	AuthStr = base64.StdEncoding.EncodeToString(encodeJSON)
 }

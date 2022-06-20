@@ -13,6 +13,17 @@ if [ -f "$binPath" ]; then
     rm $binPath
 fi
 
+configDirPath="/config/betago-webhook"
+if [ ! -d "$configDirPath" ]; then
+    mkdir $configDirPath
+fi
+
+configPath="/config/betago-webhook/env"
+if [ ! -f "$configPath" ]; then
+    printf "ConfigPath /config/betago-webhook/env not found, please configure it with username&password\n configure it like DOCKER_USERNAME_TENCENT=xxx\nDOCKER_PASSWORD_TENCENT=xxx"
+    exit 1
+fi
+
 go build -o webhook ./*.go
 cp webhook /betago-webhook/webhook
 
@@ -23,6 +34,7 @@ Description=betago-webhook
 [Service]
 Type=simple
 ExecStart=$binPath
+EnvironmentFile=$configPath
 Restart=on-failure
 RestartSec=10s
 

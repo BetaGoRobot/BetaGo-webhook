@@ -1,11 +1,8 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"testing"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 )
 
@@ -42,17 +39,9 @@ func Test_deployNewContainer(t *testing.T) {
 
 func Test_test(t *testing.T) {
 
-	cli, err := client.NewEnvClient()
-	defer cli.Close()
-	if err != nil {
-		return
-	}
-	closer, err := cli.ImagePull(context.Background(), "kevinmatt/betago:latest", types.ImagePullOptions{})
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	err = closer.Close()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+}
+
+func TestPullImg(t *testing.T) {
+	cli, _ := client.NewClientWithOpts(client.FromEnv)
+	PullImg(cli, stableImageName)
 }

@@ -58,7 +58,7 @@ func deployNewContainer(containerName, imageName string) {
 //  @return err
 func PullImg(cli *client.Client, imageName string) (err error) {
 	fmt.Println("Pulling Image...")
-	reader, err := cli.ImagePull(context.Background(), imageName, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(context.Background(), imageName, types.ImagePullOptions{RegistryAuth: AuthStr})
 	if err != nil {
 		return
 	}
