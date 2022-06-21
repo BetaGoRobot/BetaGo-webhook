@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -97,7 +98,24 @@ func removeImage(cli *client.Client, imageName string) (err error) {
 
 func createContainer(cli *client.Client, containerName, imageName string) (err error) {
 	fmt.Println("Creating Container...")
-	_, err = cli.ContainerCreate(context.Background(), &container.Config{Image: imageName, Env: []string{"COM_MES=" + GitRes.Commit.Message, "HTML_URL=" + GitRes.HTMLURL, "COM_URL=" + GitRes.CommentsURL}}, &container.HostConfig{AutoRemove: false, NetworkMode: "betago", RestartPolicy: container.RestartPolicy{Name: "always", MaximumRetryCount: 10}}, nil, nil, containerName)
+	_, err = cli.ContainerCreate(context.Background(),
+		&container.Config{
+			Image: imageName,
+			Env: []string{
+				"COM_MES=" + GitRes.Commit.Message,
+				"HTML_URL=" + GitRes.HTMLURL,
+				"COM_URL=" + GitRes.CommentsURL,
+			},
+		},
+		&container.HostConfig{
+			AutoRemove:  false,
+			NetworkMode: "betago",
+			RestartPolicy: container.RestartPolicy{
+				Name:              "on-failure",
+				MaximumRetryCount: 10,
+			},
+		},
+		nil, nil, containerName)
 	if err != nil {
 		return
 	}
@@ -110,4 +128,10 @@ func startContainer(cli *client.Client, containerName string) (err error) {
 		return
 	}
 	return
+}
+
+func splitTest() {
+	var a = "entrance.write_kafka"
+	stageSplited := strings.Split(a, "_")
+	fmt.Println(strings.Join(stageSplited[:len(stageSplited)-1], "_"))
 }

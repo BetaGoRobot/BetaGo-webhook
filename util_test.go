@@ -45,3 +45,7 @@ func TestPullImg(t *testing.T) {
 	cli, _ := client.NewClientWithOpts(client.FromEnv)
 	PullImg(cli, stableImageName)
 }
+
+func Test_splitTest(t *testing.T) {
+	splitTest()
+}
