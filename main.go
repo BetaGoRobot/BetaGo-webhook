@@ -88,10 +88,10 @@ func main() {
 				switch workflow.WorkflowRun.Name {
 				case "Docker":
 					log.Println("Receive Docker workflow finished.")
-					go deployNewContainer(stableContainerName, stableImageName)
+					go deployNewContainer(stableContainerName, stableImageNameDocker)
 				case "Docker-nightly":
 					log.Println("Receive Docker workflow finished.")
-					go deployNewContainer(nightlyContainerName, nightlyImageName)
+					go deployNewContainer(nightlyContainerName, nightlyImageNameDocker)
 				}
 			}
 		}
