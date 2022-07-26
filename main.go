@@ -117,10 +117,10 @@ func GetReq(URL string) (resp *http.Response, err error) {
 
 func init() {
 	// 获取镜像Token
-	username := os.Getenv("DOCKER_USERNAME_TENCENT")
-	password := os.Getenv("DOCKER_PASSWORD_TENCENT")
+	username := os.Getenv("DOCKER_USERNAME")
+	password := os.Getenv("DOCKER_PASSWORD")
 	if username == "" || password == "" {
-		log.Fatal("DOCKER_USERNAME_TENCENT or DOCKER_PASSWORD_TENCENT is empty")
+		log.Fatal("DOCKER_USERNAME or DOCKER_PASSWORD is empty")
 	}
 	a := types.AuthConfig{
 		Username: username,
