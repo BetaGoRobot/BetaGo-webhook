@@ -54,9 +54,10 @@ func deployNewContainer(containerName, imageName string) {
 }
 
 // PullImg  pulls an image from the docker registry
-//  @param cli
-//  @param imageName
-//  @return err
+//
+//	@param cli
+//	@param imageName
+//	@return err
 func PullImg(cli *client.Client, imageName string) (err error) {
 	fmt.Println("Pulling Image...")
 	reader, err := cli.ImagePull(context.Background(), imageName, types.ImagePullOptions{RegistryAuth: AuthStr})
@@ -69,7 +70,7 @@ func PullImg(cli *client.Client, imageName string) (err error) {
 }
 
 func stopContainer(cli *client.Client, containerName string, timeout int64) (err error) {
-	var expired = time.Duration(timeout)
+	expired := time.Duration(timeout)
 	fmt.Println("Stopping Container...")
 	err = cli.ContainerStop(context.Background(), containerName, &expired)
 	if err != nil {
@@ -131,7 +132,7 @@ func startContainer(cli *client.Client, containerName string) (err error) {
 }
 
 func splitTest() {
-	var a = "entrance.write_kafka"
+	a := "entrance.write_kafka"
 	stageSplited := strings.Split(a, "_")
 	fmt.Println(strings.Join(stageSplited[:len(stageSplited)-1], "_"))
 }

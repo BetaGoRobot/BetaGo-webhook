@@ -38,7 +38,6 @@ func Test_deployNewContainer(t *testing.T) {
 }
 
 func Test_test(t *testing.T) {
-
 }
 
 func TestPullImg(t *testing.T) {

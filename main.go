@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strings"
-
-	"net/http"
 
 	"github.com/docker/docker/api/types"
 	"github.com/go-playground/webhooks/v6/github"
@@ -103,11 +102,12 @@ func main() {
 }
 
 // GetReq 获取请求
-//  @param info 传入的参数、url、cookie信息
-//  @return resp
-//  @return err
+//
+//	@param info 传入的参数、url、cookie信息
+//	@return resp
+//	@return err
 func GetReq(URL string) (resp *http.Response, err error) {
-	//创建client
+	// 创建client
 	resp, err = http.Get(URL)
 	if err != nil {
 		return
